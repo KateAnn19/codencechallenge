@@ -47,11 +47,38 @@ table {
 	border-spacing: 0;
 }
 
+/* end css reset */
+
+form, h1, h2{
+    text-align: center;
+}
+h1{
+    font-size: 4rem;
+}
+
+h2{
+    font-size: 2rem;
+}
+
+.invoice_submission{
+    margin: 10rem;
+}
+
+form{
+    margin: 10rem;
+}
+
 
 body{
-    background-color: aqua;
+    background-color: honeydew;
+    font-family: sans-serif;
 }
 
 table{
     margin: 10rem;
+    text-align: center;
+}
+
+tr{
+    text-align: center;
 }
