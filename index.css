@@ -3,82 +3,194 @@
    License: none (public domain)
 */
 
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
 }
 body {
-	line-height: 1;
+  line-height: 1;
 }
-ol, ul {
-	list-style: none;
+ol,
+ul {
+  list-style: none;
 }
-blockquote, q {
-	quotes: none;
+blockquote,
+q {
+  quotes: none;
 }
-blockquote:before, blockquote:after,
-q:before, q:after {
-	content: '';
-	content: none;
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: "";
+  content: none;
 }
 table {
-	border-collapse: collapse;
-	border-spacing: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
 /* end css reset */
-
-form, h1, h2{
-    text-align: center;
-}
-h1{
-    font-size: 4rem;
+body {
+  background-color: honeydew;
+  font-family: sans-serif;
 }
 
-h2{
-    font-size: 2rem;
+form,
+h1,
+h2 {
+  text-align: center;
+}
+h1 {
+  font-size: 4rem;
 }
 
-.invoice_submission{
-    margin: 10rem;
+h2 {
+  padding-top: 4rem;
+  font-size: 2rem;
 }
 
-form{
-    margin: 10rem;
+h3 {
+  padding: 1rem;
 }
 
-
-body{
-    background-color: honeydew;
-    font-family: sans-serif;
+.invoice_submission {
+  margin: 10rem;
 }
 
-table{
-    margin: 10rem;
-    text-align: center;
+form {
+  margin: 2rem;
 }
 
-tr{
-    text-align: center;
+h6 {
+  font-size: 15px;
+}
+
+#missingvalues {
+  margin-left: 30rem;
+}
+
+.missingvalues {
+  text-align: center;
+}
+
+#tryagain {
+  margin-left: 10rem;
+}
+
+.datel {
+  text-align: center;
+}
+
+.container {
+  text-align: center;
+  font-size: 1rem;
+  border: 1px solid grey;
+  margin: 2rem 15rem;
+  padding: 1rem;
+  background-color: beige;
+}
+
+h4{
+  font-size: 3rem;
+  padding: 1rem;
+  background-color: aqua;
 }
