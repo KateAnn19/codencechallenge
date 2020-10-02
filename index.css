@@ -48,6 +48,11 @@ table {
 }
 
 /* end css reset */
+body{
+    background-color: honeydew;
+    font-family: sans-serif;
+}
+
 
 form, h1, h2{
     text-align: center;
@@ -57,7 +62,12 @@ h1{
 }
 
 h2{
+    padding-top: 4rem;
     font-size: 2rem;
+}
+
+h3{
+    padding: 1rem;
 }
 
 .invoice_submission{
@@ -69,16 +79,33 @@ form{
 }
 
 
-body{
-    background-color: honeydew;
-    font-family: sans-serif;
+
+
+h6{
+    font-size: 15px;
 }
 
-table{
-    margin: 10rem;
+#missingvalues{
+    margin-left: 30rem;
+}
+
+.missingvalues{
     text-align: center;
 }
 
-tr{
+#tryagain{
+    margin-left: 10rem;
+}
+
+.datel{
     text-align: center;
+}
+
+.container{
+    text-align: center;
+    font-size: 1rem;
+    border: 1px solid grey;
+    margin: 2rem 15rem;
+    padding: 1rem;
+    background-color: beige;
 }

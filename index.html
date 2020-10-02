@@ -11,10 +11,11 @@
       <form>
         <h2>Upload some files?</h2>
         <br />
-        <input type="file" id="fileinput" />
+        <input type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" id="fileinput" />
+        <h6>.csv only</h6>
         <br />
-        <input type="submit" onmouseup="uploadConfirmation()" />
-        <button type="button" onclick="displayData">Display Data</button>
+        <input  type="submit" onmouseup="uploadConfirmation()" />
+        <button type = "button" onclick=cancel()>Cancel</button>
       </form>
     </section>
     <script type="text/javascript" src="index.js"></script>

@@ -1,13 +1,22 @@
 function uploadConfirmation() {
+  //does not execute if wrong file type
+  if (error === true) {
+    const button = document.querySelector("#id");
+    button.disabled = true;
+    return;
+  }
   alert("Data Loaded!");
 }
 
-function displayData() {
-  var dataset = document.getElementById("fileinput").value;
-  var show = [];
-  for (var i = 0; i < dataset.length; i++) {
-    show.push("<span>" + dataset[i] + "</span>");
+//removes from local storage if error
+function cancel() {
+  //removes the item from local storage
+  if(window.localStorage){
+    window.localStorage.clear();
   }
+  
+  //reloads the page
+  location.reload();
 }
 
 //I found this function to use to turn the CSV into an array
@@ -73,92 +82,107 @@ function CSVToArray(strData, strDelimiter) {
 
 //function to read the CSV file that a user uploads
 function readSingleFile(evt) {
+  //-----------------------------------------------------------------------------
+  // this checks to see that the right file type is implemented
+  var filename = evt.target.files[0].name;
+  var filetype =
+    filename.substring(filename.lastIndexOf(".") + 1, filename.length) ||
+    filename;
+  //if the wrong file type is uploaded will be set to true
+  var error = false;
+  if (filetype !== "csv") {
+    alert("CSV files only");
+    error = true;
+    throw new Error("try a different file");
+  }
+  //end check for right file type
+  //-------------------------------------------------------------------------------
+  //if there is a file that was uploaded successfully
   var f = evt.target.files[0];
-  //if there is a file that was uploaded
+
   if (f) {
     //creates a new file reader
     var r = new FileReader();
     r.onload = function (e) {
-        //contents is of type string (not a valid JSON string)
-        var contents = e.target.result;
-        //this converts to a JSON object
-        var csvtojson = CSVToArray(contents);
-        //this filters out extra lines brought in from the CSV file
-        var filteredcsvtojson = csvtojson.filter((e) => e.length !== 1);
-        var newoutput = [];
-        //-----------------------------------------------------------------------------
-        // I chose to extract the values from the positions because I think the users
-        // should be given a format to follow for submitting invocies.
-        // This format would place the inputs in these positions always.
-        // #Todo
-        // In other iterations we could allow for flexibility on submission and
-        // do more error handling and data validation, but I think a format is best
-        //------------------------------------------------------------------------------
-        //should always be main info heading
-        var maininfoheading = csvtojson[0];
-        console.log(maininfoheading.length);
-        //should always be main info heading values
-        var maininfoheadingvalues = csvtojson[1];
-        //should always be line items heading and filter out extra empty excel cells
-        var lineitemsheading = csvtojson[3].filter((e) => e !== "");
-        //will be an array of objects after data validation is performed
-        var lineitems_collection = [];
-        var lineitems = [];
-        // string to alert what items are missing
-        // #Todo
-        // In other iterations instead of an alert I might display on the page
-        var missing = "you are missing ";
-        // ismissing begins as false and if anything is missing will be set to true
-        var ismissing = false;
-        //this is the object created from all the user data
-        var customobj = {};
-        console.log(csvtojson);
-
-        //-----------------------------------------------------------------------------
-        //check main heading to see if the headings are present
-        //-----------------------------------------------------------------------------
-        // #Todo
-        // In other iterations I would check the exact string to make sure they matched
-        // and offer suggestions for spelling
-        //------------------------------------------------------------------------------
-        for (let i = 0; i < maininfoheading.length; i++) {
-            if (maininfoheading[i] === "") {
-                missing += " heading for main info on line " + i + "\n";
-                //sets ismissing to true to flag that something is missing
-                //so that an alert will be displayed to the user
-                ismissing = true;
-            }
-            
+      //contents is of type string (not a valid JSON string)
+      var contents = e.target.result;
+      //this converts to a JSON object
+      var csvtojson = CSVToArray(contents);
+      //this filters out extra lines brought in from the CSV file
+      var filteredcsvtojson = csvtojson.filter((e) => e.length !== 1);
+      var newoutput = [];
+      //-----------------------------------------------------------------------------
+      // I chose to extract the values from the positions because I think the users
+      // should be given a format to follow for submitting invocies.
+      // This format would place the inputs in these positions always.
+      // #Todo
+      // In other iterations we could allow for flexibility on submission and
+      // do more error handling and data validation, but I think a format is best
+      //------------------------------------------------------------------------------
+      //should always be main info heading
+      var maininfoheading = csvtojson[0];
+      //should always be main info heading values
+      var maininfoheadingvalues = csvtojson[1];
+      //should always be line items heading and filter out extra empty excel cells
+      var lineitemsheading = csvtojson[3].filter((e) => e !== "");
+      //will be an array of objects after data validation is performed
+      var lineitems_collection = [];
+      var lineitems = [];
+      // string to alert what items are missing
+      // #Todo
+      // In other iterations instead of an alert I might display on the page
+      var missing = "you are missing ";
+      // ismissing begins as false and if anything is missing will be set to true
+      var ismissing = false;
+      //this is the object created from all the user data
+      var customobj = {};
+      //-----------------------------------------------------------------------------
+      //check main heading to see if the headings are present
+      //-----------------------------------------------------------------------------
+      // #Todo
+      // In other iterations I would check the exact string to make sure they matched
+      // and offer suggestions for spelling
+      //------------------------------------------------------------------------------
+      for (let i = 0; i < maininfoheading.length; i++) {
+        if (maininfoheading[i] === "") {
+          missing += " heading for main info on line " + i + "\n";
+          //sets ismissing to true to flag that something is missing
+          //so that an alert will be displayed to the user
+          ismissing = true;
         }
-      
+      }
+
       //-----------------------------------------------------------------------------
       //check main heading values to see if values are present
       //if the PO number is missing then don't add. PO number is in position 13
       //-----------------------------------------------------------------------------
-        for (let i = 0; i < maininfoheadingvalues.length; i++) {
-          if (maininfoheadingvalues[13] === "") {
-            continue;
-          }
-          else if(maininfoheadingvalues[i] === ""){
-            missing += " values for heading on line " + i + "\n";
-            //sets ismissing to true to flag that something is missing
-            //so that an alert will be displayed to the user
-            ismissing = true;
-          }
-          
+      for (let i = 0; i < maininfoheadingvalues.length; i++) {
+        if (maininfoheadingvalues[13] === "") {
+          continue;
+        } else if (maininfoheadingvalues[i] === "") {
+          missing += " values for heading on line " + i + "\n";
+          //sets ismissing to true to flag that something is missing
+          //so that an alert will be displayed to the user
+          ismissing = true;
         }
-        //checks if these values are numbers 
-        let check_num_11 = maininfoheadingvalues[11].match(/(\d+)/) !== null ? maininfoheadingvalues[11].match(/(\d+)/)[0]: false; 
-        let check_num_12 = maininfoheadingvalues[12].match(/(\d+)/) !== null ? maininfoheadingvalues[12].match(/(\d+)/)[0]: false;
-        if (!check_num_11){   
-            missing += " shipping cost needs to be a number " + "\n";
-            ismissing = true;
-        } 
-        else if(!check_num_12){
-            missing += " sales tax needs to be a number " + "\n";
-            ismissing = true;
-        }
-      
+      }
+      //checks if these values are numbers
+      let check_num_11 =
+        maininfoheadingvalues[11].match(/(\d+)/) !== null
+          ? maininfoheadingvalues[11].match(/(\d+)/)[0]
+          : false;
+      let check_num_12 =
+        maininfoheadingvalues[12].match(/(\d+)/) !== null
+          ? maininfoheadingvalues[12].match(/(\d+)/)[0]
+          : false;
+      if (!check_num_11) {
+        missing += " shipping cost needs to be a number " + "\n";
+        ismissing = true;
+      } else if (!check_num_12) {
+        missing += " sales tax needs to be a number " + "\n";
+        ismissing = true;
+      }
+
       //--------------------------------------------------------------------
       //check line items heading to see if headings are present
       //---------------------------------------------------------------------
@@ -166,15 +190,15 @@ function readSingleFile(evt) {
       // In other iterations I would check the exact string to make sure they matched
       // and offer suggestions for spelling
       //---------------------------------------------------------------------
-        for (let i = 0; i < lineitemsheading.length; i++) {
-            if(lineitemsheading === ""){
-                missing += " heading for line items on line " + i + "\n";
-                //sets ismissing to true to flag that something is missing
-                //so that alert will be displayed to the user
-                ismissing = true;
-            }        
+      for (let i = 0; i < lineitemsheading.length; i++) {
+        if (lineitemsheading === "") {
+          missing += " heading for line items on line " + i + "\n";
+          //sets ismissing to true to flag that something is missing
+          //so that alert will be displayed to the user
+          ismissing = true;
         }
-      
+      }
+
       //--------------------------------------------------------------------------------
       //this function concats a string of errors for
       //line items. It also filters out empty strings from the line items
@@ -213,6 +237,30 @@ function readSingleFile(evt) {
       //in other iterations I might display values in a nice box on the page
       if (ismissing) {
         alert(missing);
+        const submitObject = document.querySelectorAll('input')[1];
+        submitObject.disabled = true;
+        var newbutton = document.createElement('button');
+        newbutton.innerText = "click for missing values";
+        newbutton.id = "missingvalues";
+        newbutton.addEventListener("click", function(){
+            var divel = document.createElement('div');
+            divel.className = "missingvalues";
+            var pel = document.createElement('p');
+            pel.className = "missingvalues";
+            pel.innerText = missing;
+            divel.append(pel);
+            body.append(divel);
+            newbutton.disabled = true;
+            var tryagainbutton = document.createElement('button');
+            tryagainbutton.innerText = "refresh and try again";
+            tryagainbutton.id = "tryagain";
+            pel.prepend(tryagainbutton);
+            tryagainbutton.addEventListener("click", function(){
+                localStorage.clear();
+                location.reload();
+            })
+        })
+        body.append(newbutton);
       }
 
       //this loops over the line items and line items headings to
@@ -230,23 +278,22 @@ function readSingleFile(evt) {
         lineitems_collection.push(lineitemsobj);
       }
 
-      //sets the key lineitems to the collection of line items
-      customobj["lineitems"] = lineitems_collection;
+     
 
       for (let i = 0; i < maininfoheading.length; i++) {
         customobj[maininfoheading[i]] = maininfoheadingvalues[i];
-        newoutput.push("<tr><td>" + maininfoheading[i] + "</td></tr>");
+        //newoutput.push("<tr><td>" + maininfoheading[i] + "</td></tr>");
       }
+
+       //sets the key lineitems to the collection of line items
+       customobj["lineitems"] = lineitems_collection;
+
 
       //store in local storage for data persistence
       //not the best method, but swiftest for this exercise
-      localStorage.setItem('invoice', JSON.stringify(customobj));
-
-      newoutput = "<table>" + newoutput.join("") + "</table>";
-      document.write(newoutput);
+      localStorage.setItem("invoice", JSON.stringify(customobj));
     };
     r.readAsText(f);
-    // document.write(output);
     //if the document failed to load an alert is created
   } else {
     alert("Failed to load file");
@@ -254,7 +301,9 @@ function readSingleFile(evt) {
 }
 document.getElementById("fileinput").addEventListener("change", readSingleFile);
 
-/*
+/*--------------------------------------------------------------------
+This is what the object looks like
+//--------------------------------------------------------------------
 billing_address: "2066 Rancho Hills Drive"
 billing_address_city: "Chino Hills"
 billing_address_postal_code: "91709"
@@ -277,39 +326,74 @@ shipping_address_state: "CA"
 shipping_cost: "$124.56 "
 web_site: "www.databasepros.com"
 */
-//console.log(localStorage.getItem('invoice'));
+//end object ---------------------------------------------------------------
 
-let local_store_data = localStorage.getItem('invoice');
-let local_store_parsed_data = JSON.parse(local_store_data)
+//gets what's in local storage and parses it
+let local_store_data = localStorage.getItem("invoice");
+let local_store_parsed_data = JSON.parse(local_store_data);
+console.log(local_store_parsed_data);
 
+let div = document.createElement("div");
+let h2 = document.createElement("h2");
+let par = document.createElement("p");
+let body = document.querySelector("body");
 
-let div = document.createElement('div');
-let h2 = document.createElement('h2');
-let par = document.createElement('p');
-
-let body = document.querySelector('body');
-
-for(var p in local_store_parsed_data){
-    console.log(p);
-    let new_div = document.createElement('div');
-    let new_h2 = document.createElement('h2');
-    new_h2.innerText = p + " " + local_store_parsed_data[p];
-    new_div.appendChild(new_h2);
-    body.appendChild(new_div);
+//loops over the object to display to user 
+for (var p in local_store_parsed_data) {
+    console.log(local_store_parsed_data)
+  //if the local storage data is line items, loop over those
+    if (p === "lineitems") {
+        for (let i = 0; i < local_store_parsed_data[p].length; i++) {
+            var hel = document.createElement('h2');
+            var hel2 = document.createElement('h3');
+            var hel3 = document.createElement('h3');
+            var hel4 = document.createElement('h3');
+            var hel5 = document.createElement('h3');
+            var hel6 = document.createElement('h3');
+            var hel7 = document.createElement('h3');
+            var pel = document.createElement('p');
+            hel.innerText = "Product: " + local_store_parsed_data[p][i].product;
+            hel.className = "datael";
+            pel.innerText = "Description: " + local_store_parsed_data[p][i].description;
+            pel.className = "datael";
+            hel2.innerText = "Price: " + local_store_parsed_data[p][i].price;
+            hel2.className = "datael";
+            hel3.innerText = "Quantity: " + local_store_parsed_data[p][i].quantity;
+            hel3.className = "datael";
+            hel4.innerText = "Rebate: " + local_store_parsed_data[p][i].rebate;
+            hel4.className = "datael";
+            hel5.innerText = "Total Price: " + local_store_parsed_data[p][i].totalprice;
+            hel5.className = "datel";
+            hel6.innerText = "SKU: " + local_store_parsed_data[p][i].SKU;
+            hel6.className = "datael";
+            div.appendChild(hel);
+            div.appendChild(hel2);
+            div.appendChild(hel3);
+            div.appendChild(hel4);
+            div.appendChild(hel5);
+            div.appendChild(hel6);
+            div.appendChild(hel7);
+            div.appendChild(pel);
+            div.className = "container";
+            body.appendChild(div);
+        }
+        
+    }
+    else{
+        let new_h3 = document.createElement("h3");
+        new_h3.className = "datael";
+        console.log(local_store_parsed_data[p]);
+        new_h3.innerText = p + " " + local_store_parsed_data[p];
+        div.appendChild(new_h3);
+    }
 }
 
-h2.innerText = local_store_parsed_data["email"];
+let contdive = document.createElement('div');
+pel.prepend(contdive);
 
-div.appendChild(h2);
-body.appendChild(div);
-
-div.className = "data";
-
-
-//old data would live here that would be displayed to user 
+//old data would live here that would be displayed to user
 let olddata = {
-    'invoice_one': {},
-    'invoice_two':{},
-    'invoice_three': {}
-}
-
+  invoice_one: {},
+  invoice_two: {},
+  invoice_three: {},
+};
