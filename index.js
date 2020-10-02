@@ -386,6 +386,7 @@ email: "jmo@filemakerpros.com"
 grandtotallineitems: "$8,503,803.95 "
 invoice_number: "INV000000103"
 lineitems: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+numrebateitems: 1
 phone_mobile: "(909) 636-2314"
 phone_work: "(909) 393-4664"
 "po ": "232323523"
@@ -395,6 +396,8 @@ shipping_address_city: "Chino Hills"
 shipping_address_postal_code: "91709"
 shipping_address_state: "CA"
 shipping_cost: "$124.56 "
+totalafterrebate: 8671228.84
+totalrebateback: 23304
 web_site: "www.databasepros.com"
 */
 //end object ---------------------------------------------------------------
@@ -454,22 +457,22 @@ for (var p in local_store_parsed_data) {
     g_total.innerText = "Grand total " + local_store_parsed_data[p];
     div.appendChild(g_total);
 }else if(p === "numrebateitems"){
-    let new_h3 = document.createElement("h3");
-    new_h3.className = "datael";
-    new_h3.innerText = p + "\n" + local_store_parsed_data[p];
-    div.appendChild(new_h3);
+    let new_h4 = document.createElement("h4");
+    new_h4.className = "datael";
+    new_h4.innerText = "Number of Rebate Items " + "\n" + local_store_parsed_data[p];
+    div.appendChild(new_h4);
 
 }else if(p === "totalrebateback"){
-    let new_h3 = document.createElement("h3");
-    new_h3.className = "datael";
-    new_h3.innerText = p + "\n" + local_store_parsed_data[p];
-    div.appendChild(new_h3);
+    let new_h4 = document.createElement("h4");
+    new_h4.className = "datael";
+    new_h4.innerText = "Total Rebate Back " + "\n" + local_store_parsed_data[p];
+    div.appendChild(new_h4);
 
 }else if(p === "totalafterrebate"){
-    let new_h3 = document.createElement("h3");
-    new_h3.className = "datael";
-    new_h3.innerText = p + "\n" + local_store_parsed_data[p];
-    div.appendChild(new_h3);
+    let new_h4 = document.createElement("h4");
+    new_h4.className = "datael";
+    new_h4.innerText = "Total Amount After Rebate " + "\n" + local_store_parsed_data[p];
+    div.appendChild(new_h4);
 } 
 else {
     let new_h3 = document.createElement("h3");
