@@ -11,10 +11,10 @@ function uploadConfirmation() {
 //removes from local storage if error
 function cancel() {
   //removes the item from local storage
-  if(window.localStorage){
+  if (window.localStorage) {
     window.localStorage.clear();
   }
-  
+
   //reloads the page
   location.reload();
 }
@@ -136,6 +136,25 @@ function readSingleFile(evt) {
       var ismissing = false;
       //this is the object created from all the user data
       var customobj = {};
+      //grand total container
+      var grandtotalheader = csvtojson[15].filter((e) => e !== "");
+      var grandtotal = csvtojson[16].filter((e) => e !== "")[0];
+      //replaces dollar signs and commas to extract number
+      const commasAndDollarSignsRegex = /\$|,/g 
+      const bareGrandTotal = grandtotal.replace(commasAndDollarSignsRegex, '')
+      var grandnewtotal = parseFloat(bareGrandTotal);
+     
+
+    //checks if these values are numbers
+    //    let check_num_11 =
+    //    maininfoheadingvalues[11].match(/(\d+)/) !== null
+    //      ? maininfoheadingvalues[11].match(/(\d+)/)[0]
+    //      : false;
+    //  let check_num_12 =
+    //    maininfoheadingvalues[12].match(/(\d+)/) !== null
+    //      ? maininfoheadingvalues[12].match(/(\d+)/)[0]
+    //      : false;
+      
       //-----------------------------------------------------------------------------
       //check main heading to see if the headings are present
       //-----------------------------------------------------------------------------
@@ -207,8 +226,9 @@ function readSingleFile(evt) {
       // Line items start at position 4 in the array because of the way
       // the data will be brought in. If brought in correctly
       // then line items will always start at position 4
+      // the last 3 items will also not be included because they are extra lines and include a grand total 
       //-------------------------------------------------------------------------------
-      for (let i = 4; i < filteredcsvtojson.length; i++) {
+      for (let i = 4; i < filteredcsvtojson.length - 3; i++) {
         //this array stops at position 7 since there are only 7 possible line item inputs
         for (let j = 0; j < 7; j++) {
           //if something is missing then add it to missing items
@@ -237,61 +257,111 @@ function readSingleFile(evt) {
       //in other iterations I might display values in a nice box on the page
       if (ismissing) {
         alert(missing);
-        const submitObject = document.querySelectorAll('input')[1];
+        const submitObject = document.querySelectorAll("input")[1];
         submitObject.disabled = true;
-        var newbutton = document.createElement('button');
+        var newbutton = document.createElement("button");
         newbutton.innerText = "click for missing values";
         newbutton.id = "missingvalues";
-        newbutton.addEventListener("click", function(){
-            var divel = document.createElement('div');
-            divel.className = "missingvalues";
-            var pel = document.createElement('p');
-            pel.className = "missingvalues";
-            pel.innerText = missing;
-            divel.append(pel);
-            body.append(divel);
-            newbutton.disabled = true;
-            var tryagainbutton = document.createElement('button');
-            tryagainbutton.innerText = "refresh and try again";
-            tryagainbutton.id = "tryagain";
-            pel.prepend(tryagainbutton);
-            tryagainbutton.addEventListener("click", function(){
-                localStorage.clear();
-                location.reload();
-            })
-        })
+        newbutton.addEventListener("click", function () {
+          var divel = document.createElement("div");
+          divel.className = "missingvalues";
+          var pel = document.createElement("p");
+          pel.className = "missingvalues";
+          pel.innerText = missing;
+          divel.append(pel);
+          body.append(divel);
+          newbutton.disabled = true;
+          var tryagainbutton = document.createElement("button");
+          tryagainbutton.innerText = "refresh and try again";
+          tryagainbutton.id = "tryagain";
+          pel.prepend(tryagainbutton);
+          tryagainbutton.addEventListener("click", function () {
+            localStorage.clear();
+            location.reload();
+          });
+        });
         body.append(newbutton);
       }
+        //count for rebate items
+        var rebateitemscount = 0;
+        var rebatetotal = 0;
+        var quantity = 0;
+        var price = 0;
+        //this loops over the line items and line items headings to
+        //create an array of objects with keys being the headings and values
+        //being the line items
+        for (let i = 0; i < lineitems.length; i++) {
+            var lineitemsobj = {};
+            for(let j = 0; j < lineitems[i].length; j++) {
+                lineitemsobj[lineitemsheading[j]] = lineitems[i][j];
+            }
+            //before adding to collection, check math
+            lineitems_collection.push(lineitemsobj);
+        } //end line item check
 
-      //this loops over the line items and line items headings to
-      //create an array of objects with keys being the headings and values
-      //being the line items
-      for (let i = 0; i < lineitems.length; i++) {
-        var lineitemsobj = {};
-        for (let j = 0; j < lineitems[i].length; j++) {
-          if (lineitemsheading[i] === "undefined") {
-            continue;
-          }
+        for (let i = 0; i < maininfoheading.length; i++) {
+            customobj[maininfoheading[i]] = maininfoheadingvalues[i];
+        } //end adding heading info
 
-          lineitemsobj[lineitemsheading[j]] = lineitems[i][j];
+        //sets the key lineitems to the collection of line items
+        customobj["lineitems"] = lineitems_collection;
+        //begins calculation of total
+        var totalpriceofitems = 0;
+        var eachtotal = 0;
+        for(let i = 0; i < customobj["lineitems"].length; i++){
+            if(customobj["lineitems"][i].rebate === "yes"){
+                rebateitemscount += 1;
+                price = customobj["lineitems"][i].price;
+                price = price.replace(/\$|,/g, '');
+                price = parseFloat(price);
+                quantity = customobj["lineitems"][i].quantity;
+                quantity = parseInt(quantity);
+                rebatetotal += quantity * price;
+            }
+            eachtotal = customobj["lineitems"][i].totalprice;
+            eachtotal = eachtotal.replace(/\$|,/g, '');
+            eachtotal = parseFloat(eachtotal);
+            totalpriceofitems += eachtotal;
         }
-        lineitems_collection.push(lineitemsobj);
-      }
+         //function to check the math of the line items
+        // elegible rebate items (all marked yes)
+        
+        var shipping; 
+        //-------------------------------------------------
+        //turn into numbers and check math
+        //-------------------------------------------------
+        function checkmath() {
+            shipping = maininfoheadingvalues[11];
+            shipping = shipping.replace(/\$|,/g, '');
+            shipping = parseFloat(shipping);
+            var check = totalpriceofitems + shipping;
+            if((grandnewtotal >= check - 1) && (grandnewtotal <= check + 1)){
+                return;
+            }else{
+                var errmssg = document.createElement('h2');
+                errmssg.innerText = "There were errors in the totals";
+                var tot = document.createElement('h2');
+                tot.innerText = "Your total " + grandtotal;
+                var ourtotal = document.createElement('h2');
+                ourtotal.innerText = "Our total " + check;
+                body.appendChild(errmssg);
+                body.appendChild(tot);
+                body.appendChild(ourtotal);
+            }
+        }//end math check
 
-     
+        checkmath();
+        //add grandtotal to object if checks passed
+        customobj["grandtotallineitems"] = grandnewtotal;
+        //add rebate item count and rebate item total
+        customobj["numrebateitems"] = rebateitemscount;
+        customobj["totalrebateback"] = rebatetotal;
+        customobj["totalafterrebate"] = grandnewtotal - rebatetotal;
 
-      for (let i = 0; i < maininfoheading.length; i++) {
-        customobj[maininfoheading[i]] = maininfoheadingvalues[i];
-        //newoutput.push("<tr><td>" + maininfoheading[i] + "</td></tr>");
-      }
-
-       //sets the key lineitems to the collection of line items
-       customobj["lineitems"] = lineitems_collection;
-
-
-      //store in local storage for data persistence
-      //not the best method, but swiftest for this exercise
-      localStorage.setItem("invoice", JSON.stringify(customobj));
+        console.log(customobj);
+        //store in local storage for data persistence
+        //not the best method, but swiftest for this exercise
+        localStorage.setItem("invoice", JSON.stringify(customobj));
     };
     r.readAsText(f);
     //if the document failed to load an alert is created
@@ -313,6 +383,7 @@ company: "Database Pros"
 date: "10/01/2020"
 discount: "10%"
 email: "jmo@filemakerpros.com"
+grandtotallineitems: "$8,503,803.95 "
 invoice_number: "INV000000103"
 lineitems: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
 phone_mobile: "(909) 636-2314"
@@ -331,65 +402,83 @@ web_site: "www.databasepros.com"
 //gets what's in local storage and parses it
 let local_store_data = localStorage.getItem("invoice");
 let local_store_parsed_data = JSON.parse(local_store_data);
-console.log(local_store_parsed_data);
 
 let div = document.createElement("div");
 let h2 = document.createElement("h2");
 let par = document.createElement("p");
 let body = document.querySelector("body");
 
-//loops over the object to display to user 
+//loops over the object to display to user
 for (var p in local_store_parsed_data) {
-    console.log(local_store_parsed_data)
   //if the local storage data is line items, loop over those
-    if (p === "lineitems") {
-        for (let i = 0; i < local_store_parsed_data[p].length; i++) {
-            var hel = document.createElement('h2');
-            var hel2 = document.createElement('h3');
-            var hel3 = document.createElement('h3');
-            var hel4 = document.createElement('h3');
-            var hel5 = document.createElement('h3');
-            var hel6 = document.createElement('h3');
-            var hel7 = document.createElement('h3');
-            var pel = document.createElement('p');
-            hel.innerText = "Product: " + local_store_parsed_data[p][i].product;
-            hel.className = "datael";
-            pel.innerText = "Description: " + local_store_parsed_data[p][i].description;
-            pel.className = "datael";
-            hel2.innerText = "Price: " + local_store_parsed_data[p][i].price;
-            hel2.className = "datael";
-            hel3.innerText = "Quantity: " + local_store_parsed_data[p][i].quantity;
-            hel3.className = "datael";
-            hel4.innerText = "Rebate: " + local_store_parsed_data[p][i].rebate;
-            hel4.className = "datael";
-            hel5.innerText = "Total Price: " + local_store_parsed_data[p][i].totalprice;
-            hel5.className = "datel";
-            hel6.innerText = "SKU: " + local_store_parsed_data[p][i].SKU;
-            hel6.className = "datael";
-            div.appendChild(hel);
-            div.appendChild(hel2);
-            div.appendChild(hel3);
-            div.appendChild(hel4);
-            div.appendChild(hel5);
-            div.appendChild(hel6);
-            div.appendChild(hel7);
-            div.appendChild(pel);
-            div.className = "container";
-            body.appendChild(div);
-        }
-        
+  if (p === "lineitems") {
+    for (let i = 0; i < local_store_parsed_data[p].length; i++) {
+      var hel = document.createElement("h2");
+      var hel2 = document.createElement("h3");
+      var hel3 = document.createElement("h3");
+      var hel4 = document.createElement("h3");
+      var hel5 = document.createElement("h3");
+      var hel6 = document.createElement("h3");
+      var hel7 = document.createElement("h3");
+      var pel = document.createElement("p");
+      hel.innerText = "Product: " + local_store_parsed_data[p][i].product;
+      hel.className = "datael";
+      pel.innerText =
+        "Description: " + local_store_parsed_data[p][i].description;
+      pel.className = "datael";
+      hel2.innerText = "Price: " + local_store_parsed_data[p][i].price;
+      hel2.className = "datael";
+      hel3.innerText = "Quantity: " + local_store_parsed_data[p][i].quantity;
+      hel3.className = "datael";
+      hel4.innerText = "Rebate: " + local_store_parsed_data[p][i].rebate;
+      hel4.className = "datael";
+      hel5.innerText =
+        "Total Price: " + local_store_parsed_data[p][i].totalprice;
+      hel5.className = "datel";
+      hel6.innerText = "SKU: " + local_store_parsed_data[p][i].SKU;
+      hel6.className = "datael";
+      div.appendChild(hel);
+      div.appendChild(hel2);
+      div.appendChild(hel3);
+      div.appendChild(hel4);
+      div.appendChild(hel5);
+      div.appendChild(hel6);
+      div.appendChild(hel7);
+      div.appendChild(pel);
+      div.className = "container";
+      body.appendChild(div);
     }
-    else{
-        let new_h3 = document.createElement("h3");
-        new_h3.className = "datael";
-        console.log(local_store_parsed_data[p]);
-        new_h3.innerText = p + " " + local_store_parsed_data[p];
-        div.appendChild(new_h3);
-    }
+}else if(p === "grandtotallineitems"){
+    //if not values were missing and totals passed check then run this
+    let g_total = document.createElement('h2');
+    g_total.innerText = "Grand total " + local_store_parsed_data[p];
+    div.appendChild(g_total);
+}else if(p === "numrebateitems"){
+    let new_h3 = document.createElement("h3");
+    new_h3.className = "datael";
+    new_h3.innerText = p + "\n" + local_store_parsed_data[p];
+    div.appendChild(new_h3);
+
+}else if(p === "totalrebateback"){
+    let new_h3 = document.createElement("h3");
+    new_h3.className = "datael";
+    new_h3.innerText = p + "\n" + local_store_parsed_data[p];
+    div.appendChild(new_h3);
+
+}else if(p === "totalafterrebate"){
+    let new_h3 = document.createElement("h3");
+    new_h3.className = "datael";
+    new_h3.innerText = p + "\n" + local_store_parsed_data[p];
+    div.appendChild(new_h3);
+} 
+else {
+    let new_h3 = document.createElement("h3");
+    new_h3.className = "datael";
+    new_h3.innerText = p + "\n" + local_store_parsed_data[p];
+    div.appendChild(new_h3);
+  }
 }
 
-let contdive = document.createElement('div');
-pel.prepend(contdive);
 
 //old data would live here that would be displayed to user
 let olddata = {
@@ -397,3 +486,4 @@ let olddata = {
   invoice_two: {},
   invoice_three: {},
 };
+
